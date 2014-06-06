@@ -3,10 +3,14 @@ library(foreach)
 library(iterators)
 library(stringr)
 
+library(doParallel)
+library(foreach)
+registerDoParallel(8)
+
 start_date <- as.Date('2000/2/18')
 end_date <- as.Date('2014/2/18')
 
-output_path <- '/localdisk/home/azvoleff'
+output_path <- '/localdisk/home/azvoleff/MODIS_NBAR_Reflectance'
 
 MODIS_product_base_url <- 'http://e4ftl01.cr.usgs.gov/MOTA/MCD43A4.005'
 
@@ -44,7 +48,7 @@ foreach (base_url=iter(base_urls)) %do%  {
     modis_filenames <- c(modis_filenames, paste0(modis_filenames, '.xml'))
 
     foreach (modis_filename=iter(modis_filenames), .inorder=FALSE) %dopar% {
-        local_file <- file.path(output_path, 'MODIS_NBAR_Reflectance', download_url)
+        local_file <- file.path(output_path, modis_filename)
         remote_file <- file.path(base_url, modis_filename)
         ret_code <- download.file(remote_file, local_file, mode="w", quiet=TRUE)
     }
