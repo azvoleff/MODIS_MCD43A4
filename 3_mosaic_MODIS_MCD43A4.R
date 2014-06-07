@@ -11,7 +11,7 @@ library(raster)
 library(stringr)
 library(gdalUtils)
 library(rgeos)
-library(teamlucc)
+library(gfcanalysis) # for utm_zone
 
 library(doParallel)
 library(foreach)
@@ -85,9 +85,11 @@ for (sitecode in unique(tile_key$sitecode)) {
 
         # Mosaic, reproject, and crop vrts
         dstfile <- paste0(out_base, '.dat')
+        if (file_test('-f', dstfile) & overwrite){
+          unlink(dstfile)
+        }
         gdalwarp(vrt_files, dstfile, t_srs=t_srs, te=te, tr=c(500, 500), 
-                 tap=TRUE, multi=TRUE, wo=paste0("NUM_THREADS=", n_cpus), 
-                 overwrite=overwrite)
+                r='cubicspline')
 
         # Delete the temp files
         unlink(vrt_files)
