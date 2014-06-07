@@ -16,7 +16,7 @@ library(gfcanalysis) # for utm_zone
 library(doParallel)
 library(foreach)
 
-n_cpus <- 4
+n_cpus <- 12
 overwrite <- TRUE
 
 registerDoParallel(n_cpus)
@@ -88,8 +88,8 @@ for (sitecode in unique(tile_key$sitecode)) {
         if (file_test('-f', dstfile) & overwrite){
           unlink(dstfile)
         }
-        gdalwarp(vrt_files, dstfile, t_srs=t_srs, te=te, tr=c(500, 500), 
-                r='cubicspline')
+        gdalwarp(vrt_files, dstfile, t_srs=t_srs, te=te,
+                 tr=c(500, 500), r='cubicspline')
 
         # Delete the temp files
         unlink(vrt_files)
