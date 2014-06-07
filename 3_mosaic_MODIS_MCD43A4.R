@@ -25,7 +25,7 @@ zoi_folder <- '/localdisk/home/azvoleff/ZOI_CSA_PAs'
 in_base_dir <- '/localdisk/home/azvoleff/MODIS_NBAR_Reflectance'
 out_base_dir <- '/localdisk/home/azvoleff/MODIS_NBAR_Reflectance'
 in_folder <- file.path(in_base_dir, 'ORIGINALS')
-out_folder <- out_base_dir
+out_folder <- file.path(in_base_dir, 'ZOI_Crops')
 
 hdfs <- dir(in_folder, pattern='.hdf$')
 tile_key <- read.csv('TEAM_Site_MODIS_Tiles.csv')
@@ -76,20 +76,12 @@ for (sitecode in unique(tile_key$sitecode)) {
         # First build a VRT with all the bands in the HDF file (this mosaics 
         # the tiles, but with delayed computation - the actual mosaicing 
         # computations won't take place until the gdalwarp line below)
-        vrt_files <- c()
-        for (n in 1:length(srcfiles)) {
-            vrt_file <- paste0(out_base, '_temp', n, '.vrt')
-            gdalbuildvrt(srcfiles[[n]], vrt_file, separate=TRUE)
-            vrt_files <- c(vrt_files, vrt_file)
-        }
+        vrt_file <- paste0(out_base, '_temp', n, '.vrt')
+        gdalbuildvrt(srcfiles, vrt_file, separate=TRUE)
 
         # Mosaic, reproject, and crop vrts
-        dstfile <- paste0(out_base, '.dat')
-        if (file_test('-f', dstfile) & overwrite){
-          unlink(dstfile)
-        }
-        gdalwarp(vrt_files, dstfile, t_srs=t_srs, te=te,
-                 tr=c(500, 500), r='cubicspline')
+        gdalwarp(vrt_file, dstfile, t_srs=t_srs, te=te,
+                 tr=c(500, 500), r='cubicspline', overwrite=overwrite)
 
         # Delete the temp files
         unlink(vrt_files)
